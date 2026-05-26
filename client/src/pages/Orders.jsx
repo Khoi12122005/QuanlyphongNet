@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
+import useSoundAlert from '../hooks/useSoundAlert';
 import Modal from '../components/Modal';
 import { IoAdd, IoCart, IoCheckmarkCircle, IoEye, IoRemove, IoTime, IoTrash, IoExpand, IoContract } from 'react-icons/io5';
 
@@ -44,6 +45,8 @@ export default function Orders() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const playSound = useSoundAlert();
+
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedSession, setSelectedSession] = useState('');
   const [cart, setCart] = useState([]);
@@ -51,6 +54,16 @@ export default function Orders() {
   useEffect(() => {
     fetchAll();
   }, []);
+
+  const pendingCount = useMemo(() => orders.filter(o => o.status === 'pending').length, [orders]);
+  const prevPendingCountRef = useRef(0);
+
+  useEffect(() => {
+    if (pendingCount > prevPendingCountRef.current) {
+      playSound();
+    }
+    prevPendingCountRef.current = pendingCount;
+  }, [pendingCount, playSound]);
 
   useEffect(() => {
     const timer = setInterval(fetchAll, ORDER_REFRESH_MS);

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Modal from '../../components/Modal';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -12,6 +13,9 @@ import {
   IoRemove,
   IoStar,
   IoVideocam,
+  IoWallet,
+  IoTrophy,
+  IoQrCode
 } from 'react-icons/io5';
 
 const API = '/api';
@@ -103,6 +107,15 @@ export default function Home() {
   const [cart, setCart] = useState([]);
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [orderNotice, setOrderNotice] = useState({ type: '', message: '' });
+
+  // Nạp tiền & Loyalty
+  const [showTopupModal, setShowTopupModal] = useState(false);
+  const [topupAmount, setTopupAmount] = useState('');
+  const [qrUrl, setQrUrl] = useState('');
+  const [isToppingUp, setIsToppingUp] = useState(false);
+
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
 
   const fetchActiveSession = useCallback(async () => {
     if (!isCustomer) {
@@ -302,6 +315,54 @@ export default function Home() {
     [products]
   );
 
+  const handleGenerateQR = () => {
+    if (!topupAmount || topupAmount < 10000) {
+      alert('Vui lòng nhập số tiền hợp lệ (tối thiểu 10.000đ)');
+      return;
+    }
+    // Tạo mã VietQR theo thông tin tài khoản của hệ thống
+    const amount = parseInt(topupAmount, 10);
+    const memo = `NAPTIEN ${user?.phone || user?.id}`;
+    const url = `https://api.vietqr.io/image/970423-15712122005-tvhG0fa.jpg?accountName=NGUYEN%20HUYNH%20KHOI&amount=${amount}&addInfo=${encodeURIComponent(memo)}`;
+    setQrUrl(url);
+  };
+
+  const handleConfirmTopup = async () => {
+    setIsToppingUp(true);
+    try {
+      const amount = parseInt(topupAmount, 10);
+      const res = await axios.post(`${API}/customer-auth/topup_qr`, { amount });
+      alert(res.data.message);
+      setShowTopupModal(false);
+      setQrUrl('');
+      setTopupAmount('');
+      window.location.reload(); 
+    } catch (error) {
+      alert(error.response?.data?.message || 'Lỗi nạp tiền');
+    } finally {
+      setIsToppingUp(false);
+    }
+  };
+
+  const handleRedeem = async (points, rewardName) => {
+    if (!user || user.points < points) {
+      alert('Bạn không đủ điểm để đổi quà này!');
+      return;
+    }
+    if (window.confirm(`Bạn muốn dùng ${points} điểm để đổi ${rewardName}?`)) {
+      setRedeeming(true);
+      try {
+        const res = await axios.post(`${API}/customer-auth/redeem`, { points_to_spend: points, reward_type: rewardName });
+        alert(res.data.message);
+        window.location.reload();
+      } catch (error) {
+        alert(error.response?.data?.message || 'Lỗi đổi quà');
+      } finally {
+        setRedeeming(false);
+      }
+    }
+  };
+
   return (
     <div className="home-page">
       {isCustomer && (
@@ -366,6 +427,121 @@ export default function Home() {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="card" style={{ marginTop: 16, padding: 20 }}>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <IoWallet /> Ví & Thẻ Thành Viên
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+              <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+                <div className="text-sm text-muted">Số dư khả dụng</div>
+                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary)', margin: '8px 0' }}>
+                  {formatCurrency(user?.balance)}
+                </div>
+                <button className="btn btn-primary" onClick={() => setShowTopupModal(!showTopupModal)}>
+                  <IoQrCode style={{ marginRight: 6 }} /> Nạp tiền qua QR (Tự động)
+                </button>
+                {showTopupModal && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
+                    {!qrUrl ? (
+                      <div>
+                        <div className="form-group" style={{ marginBottom: 12 }}>
+                          <label style={{ fontSize: '0.9rem', marginBottom: 6, display: 'block' }}>Nhập số tiền muốn nạp (VNĐ)</label>
+                          <input 
+                            type="number" 
+                            className="form-input" 
+                            placeholder="Ví dụ: 50000"
+                            value={topupAmount}
+                            onChange={(e) => setTopupAmount(e.target.value)}
+                          />
+                        </div>
+                        <button className="btn btn-primary" onClick={handleGenerateQR} style={{ width: '100%' }}>
+                          Tạo mã QR
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ 
+                          background: '#ffffff', 
+                          padding: '16px', 
+                          borderRadius: '16px', 
+                          boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+                          marginBottom: '24px',
+                          display: 'inline-block'
+                        }}>
+                          <img src={qrUrl} alt="VietQR" style={{ width: '100%', maxWidth: 220, height: 'auto', borderRadius: '8px', objectFit: 'contain' }} />
+                          <div style={{ color: '#1e293b', fontSize: '0.85rem', marginTop: '12px', fontWeight: 600, letterSpacing: '0.5px' }}>
+                            NGUYEN HUYNH KHOI<br/>TPBank - 15712122005
+                          </div>
+                        </div>
+                        <div style={{ width: '100%' }}>
+                          <button 
+                            className="btn btn-primary" 
+                            onClick={handleConfirmTopup} 
+                            disabled={isToppingUp}
+                            style={{ width: '100%' }}
+                          >
+                            {isToppingUp ? 'Đang xử lý...' : 'Tôi đã chuyển khoản xong'}
+                          </button>
+                          <div className="text-muted" style={{ marginTop: 12, fontSize: '0.85rem' }}>
+                            Hệ thống sẽ kiểm tra và cộng tiền vào tài khoản của bạn.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+                <div className="text-sm text-muted">Hạng thành viên</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0 20px 0' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-yellow)' }}>
+                    {user?.member_rank || 'Bronze'}
+                  </div>
+                  <div style={{ fontWeight: 700 }}>
+                    <IoTrophy style={{ color: 'var(--accent-yellow)', marginRight: 4, verticalAlign: 'middle' }} />
+                    {user?.points || 0} điểm
+                  </div>
+                </div>
+                <div style={{ width: '100%', height: 8, background: 'var(--bg-dark)', borderRadius: 4, overflow: 'hidden', marginBottom: 20 }}>
+                  <div style={{ 
+                    width: `${Math.min(100, ((user?.points || 0) / 1000) * 100)}%`, 
+                    height: '100%', 
+                    background: 'linear-gradient(90deg, var(--primary), var(--secondary))' 
+                  }}></div>
+                </div>
+                <button className="btn btn-ghost" onClick={() => setShowRedeemModal(!showRedeemModal)} disabled={redeeming}>
+                  Đổi điểm lấy quà
+                </button>
+                {showRedeemModal && (
+                  <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ display: 'block', marginBottom: 4 }}>Nước ngọt (Tùy chọn)</strong>
+                        <div className="text-muted text-sm">200 điểm</div>
+                      </div>
+                      <button className="btn btn-primary btn-sm" style={{ marginLeft: 16 }} onClick={() => handleRedeem(200, 'Nước ngọt')}>Đổi ngay</button>
+                    </div>
+                    <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ display: 'block', marginBottom: 4 }}>Combo Nước + Mì tôm xào</strong>
+                        <div className="text-muted text-sm">500 điểm</div>
+                      </div>
+                      <button className="btn btn-primary btn-sm" style={{ marginLeft: 16 }} onClick={() => handleRedeem(500, 'Combo Mì Nước')}>Đổi ngay</button>
+                    </div>
+                    <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ display: 'block', marginBottom: 4 }}>Thêm 2 giờ chơi (Khu thường)</strong>
+                        <div className="text-muted text-sm">1000 điểm</div>
+                      </div>
+                      <button className="btn btn-primary btn-sm" style={{ marginLeft: 16 }} onClick={() => handleRedeem(1000, '2H Chơi')}>Đổi ngay</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="card" style={{ marginTop: 16, padding: 20 }}>
@@ -674,6 +850,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+
     </div>
   );
 }

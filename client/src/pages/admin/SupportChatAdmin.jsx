@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { IoChatbubbles, IoRefresh, IoSend } from 'react-icons/io5';
+import useSoundAlert from '../../hooks/useSoundAlert';
 
 const API = '/api';
 const POLL_CONVERSATIONS_MS = 3000;
@@ -41,6 +42,7 @@ export default function SupportChatAdmin() {
   const [error, setError] = useState('');
   const [lastSync, setLastSync] = useState(null);
   const listRef = useRef(null);
+  const playSound = useSoundAlert();
 
   const totalUnread = useMemo(
     () => conversations.reduce((sum, item) => sum + Number(item.unread_count || 0), 0),
@@ -51,6 +53,14 @@ export default function SupportChatAdmin() {
     () => conversations.find((item) => Number(item.customer_id) === Number(selectedCustomerId)) || null,
     [conversations, selectedCustomerId]
   );
+
+  const prevUnreadRef = useRef(0);
+  useEffect(() => {
+    if (totalUnread > prevUnreadRef.current) {
+      playSound();
+    }
+    prevUnreadRef.current = totalUnread;
+  }, [totalUnread, playSound]);
 
   const fetchConversations = async () => {
     try {

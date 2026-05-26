@@ -1,7 +1,7 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import Modal from '../components/Modal';
-import { IoAdd, IoDesktop, IoPencil, IoPlay, IoStatsChart, IoStop, IoTrash } from 'react-icons/io5';
+import { IoAdd, IoDesktop, IoPencil, IoPlay, IoStatsChart, IoStop, IoTrash, IoGrid, IoMap } from 'react-icons/io5';
 import { Bar } from 'react-chartjs-2';
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Tooltip } from 'chart.js';
 
@@ -213,6 +213,7 @@ export default function Computers() {
           borderColor: '#00f0ff',
           borderWidth: 1,
           borderRadius: 6,
+          maxBarThickness: 32,
         },
       ],
     }),
@@ -431,85 +432,87 @@ export default function Computers() {
         )}
       </div>
 
-      <div className="filter-tabs">
-        {FILTER_OPTIONS.map((option) => (
-          <button
-            key={option}
-            className={`filter-tab ${filter === option ? 'active' : ''}`}
-            onClick={() => setFilter(option)}
-          >
-            {option === 'Tất cả' ? 'Tất cả' : ZONE_LABELS[option]}
-          </button>
-        ))}
+      <div className="filter-tabs" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div>
+          {FILTER_OPTIONS.map((option) => (
+            <button
+              key={option}
+              className={`filter-tab ${filter === option ? 'active' : ''}`}
+              onClick={() => setFilter(option)}
+            >
+              {option === 'Tất cả' ? 'Tất cả' : ZONE_LABELS[option]}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="computer-grid">
-        {filtered.map((computer) => (
-          <div
-            key={computer.id}
-            className={`computer-card ${computer.status}`}
-            onClick={() => handleComputerClick(computer)}
-          >
-            <div className="computer-card-icon">
-              <IoDesktop />
-            </div>
-            <div className="computer-card-name">{computer.name}</div>
-            <div className="computer-card-zone">{ZONE_LABELS[normalizeZone(computer.zone)]}</div>
-            <div className="text-sm text-muted">{formatCurrency(computer.pricePerHour)}/giờ</div>
-
-            {isVirtualMachine(computer) && (
-              <span className="badge badge-purple" style={{ marginTop: 8 }}>
-                Máy ảo
-              </span>
-            )}
-
-            <span
-              className={`badge ${
-                computer.status === 'available'
-                  ? 'badge-green'
-                  : computer.status === 'in_use'
-                    ? 'badge-red'
-                    : 'badge-yellow'
-              }`}
-              style={{ marginTop: 8 }}
+          {filtered.map((computer) => (
+            <div
+              key={computer.id}
+              className={`computer-card ${computer.status}`}
+              onClick={() => handleComputerClick(computer)}
             >
-              <span
-                className={`badge-dot ${
-                  computer.status === 'available' ? 'green' : computer.status === 'in_use' ? 'red' : 'yellow'
-                }`}
-              ></span>
-              {statusLabels[computer.status] || computer.status}
-            </span>
-
-            {computer.status === 'in_use' && computer.customerName && (
-              <div className="computer-card-user">{computer.customerName}</div>
-            )}
-
-            {computer.status === 'in_use' && computer.sessionIsPrepaid && computer.sessionPlannedEnd && (
-              <SessionCountdownTimer endTime={computer.sessionPlannedEnd} />
-            )}
-
-            {computer.status === 'in_use' && (!computer.sessionIsPrepaid || !computer.sessionPlannedEnd) && computer.sessionStart && (
-              <SessionElapsedTimer startTime={computer.sessionStart} />
-            )}
-
-            {computer.status === 'in_use' && computer.sessionIsPrepaid && (
-              <div className="text-xs text-muted" style={{ marginTop: 4 }}>
-                Trả trước: {formatCurrency(computer.sessionPrepaidAmount)}
+              <div className="computer-card-icon">
+                <IoDesktop />
               </div>
-            )}
+              <div className="computer-card-name">{computer.name}</div>
+              <div className="computer-card-zone">{ZONE_LABELS[normalizeZone(computer.zone)]}</div>
+              <div className="text-sm text-muted">{formatCurrency(computer.pricePerHour)}/giờ</div>
 
-            <div className="product-card-actions" style={{ justifyContent: 'center', marginTop: 10 }}>
-              <button className="btn btn-ghost btn-icon sm" onClick={(event) => openEditModal(computer, event)} title="Sửa">
-                <IoPencil />
-              </button>
-              <button className="btn btn-ghost btn-icon sm" onClick={(event) => handleDelete(computer.id, event)} title="Xóa">
-                <IoTrash />
-              </button>
+              {isVirtualMachine(computer) && (
+                <span className="badge badge-purple" style={{ marginTop: 8 }}>
+                  Máy ảo
+                </span>
+              )}
+
+              <span
+                className={`badge ${
+                  computer.status === 'available'
+                    ? 'badge-green'
+                    : computer.status === 'in_use'
+                      ? 'badge-red'
+                      : 'badge-yellow'
+                }`}
+                style={{ marginTop: 8 }}
+              >
+                <span
+                  className={`badge-dot ${
+                    computer.status === 'available' ? 'green' : computer.status === 'in_use' ? 'red' : 'yellow'
+                  }`}
+                ></span>
+                {statusLabels[computer.status] || computer.status}
+              </span>
+
+              {computer.status === 'in_use' && computer.customerName && (
+                <div className="computer-card-user">{computer.customerName}</div>
+              )}
+
+              {computer.status === 'in_use' && computer.sessionIsPrepaid && computer.sessionPlannedEnd && (
+                <SessionCountdownTimer endTime={computer.sessionPlannedEnd} />
+              )}
+
+              {computer.status === 'in_use' && (!computer.sessionIsPrepaid || !computer.sessionPlannedEnd) && computer.sessionStart && (
+                <SessionElapsedTimer startTime={computer.sessionStart} />
+              )}
+
+              {computer.status === 'in_use' && computer.sessionIsPrepaid && (
+                <div className="text-xs text-muted" style={{ marginTop: 4 }}>
+                  Trả trước: {formatCurrency(computer.sessionPrepaidAmount)}
+                </div>
+              )}
+
+              <div className="product-card-actions" style={{ justifyContent: 'center', marginTop: 10 }}>
+                <button className="btn btn-ghost btn-icon sm" onClick={(event) => openEditModal(computer, event)} title="Sửa">
+                  <IoPencil />
+                </button>
+                <button className="btn btn-ghost btn-icon sm" onClick={(event) => handleDelete(computer.id, event)} title="Xóa">
+                  <IoTrash />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
       {filtered.length === 0 && (
         <div className="empty-state">

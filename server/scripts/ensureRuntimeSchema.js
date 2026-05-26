@@ -62,6 +62,36 @@ const ensureSupportMessagesTable = async (pool) => {
   `);
 };
 
+const ensureShiftsTable = async (pool) => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS shifts (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      end_time DATETIME DEFAULT NULL,
+      starting_cash DECIMAL(12,2) NOT NULL DEFAULT 0,
+      ending_cash DECIMAL(12,2) DEFAULT NULL,
+      total_revenue DECIMAL(12,2) DEFAULT 0,
+      status ENUM('active', 'completed') NOT NULL DEFAULT 'active',
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB
+  `);
+};
+
+const ensureTransactionsTable = async (pool) => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      customer_id INT NOT NULL,
+      amount DECIMAL(12,2) NOT NULL,
+      type ENUM('topup', 'payment', 'refund', 'redeem') NOT NULL DEFAULT 'topup',
+      status ENUM('pending', 'success', 'failed') NOT NULL DEFAULT 'success',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB
+  `);
+};
+
 async function ensureRuntimeSchema(pool) {
   // Customers table (for customer login/register)
   await ensureColumn(pool, 'customers', 'password', 'VARCHAR(255) DEFAULT NULL AFTER phone');
@@ -114,6 +144,10 @@ async function ensureRuntimeSchema(pool) {
     'idx_support_messages_unread_customer',
     'customer_id, sender_role, read_by_customer'
   );
+
+  await ensureShiftsTable(pool);
+  await ensureColumn(pool, 'shifts', 'note', 'TEXT DEFAULT NULL AFTER ending_cash');
+  await ensureTransactionsTable(pool);
 }
 
 module.exports = ensureRuntimeSchema;

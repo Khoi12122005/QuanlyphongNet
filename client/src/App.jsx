@@ -16,6 +16,7 @@ import Auth from './pages/client/Auth';
 import SupportChat from './pages/client/SupportChat';
 import Bookings from './pages/admin/Bookings';
 import SupportChatAdmin from './pages/admin/SupportChatAdmin';
+import Shifts from './pages/admin/Shifts';
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="orders" element={<Orders />} />
             <Route path="revenue" element={<Revenue />} />
             <Route path="support" element={<SupportChatAdmin />} />
+            <Route path="shifts" element={<Shifts />} />
           </Route>
         </Routes>
       </BrowserRouter>

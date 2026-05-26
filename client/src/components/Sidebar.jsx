@@ -12,11 +12,13 @@ import {
   IoCalendar,
   IoChatbubbles,
   IoChevronBack,
-  IoChevronForward
+  IoChevronForward,
+  IoBriefcase
 } from 'react-icons/io5';
 
 const navItems = [
   { path: '/admin', label: 'Tổng quan', icon: <IoGrid />, section: 'TỔNG QUAN' },
+  { path: '/admin/shifts', label: 'Giao ca', icon: <IoBriefcase />, section: 'HỆ THỐNG' },
   { path: '/admin/computers', label: 'Máy tính', icon: <IoDesktop />, section: 'QUẢN LÝ' },
   { path: '/admin/bookings', label: 'Đặt máy', icon: <IoCalendar /> },
   { path: '/admin/customers', label: 'Khách hàng', icon: <IoPeople /> },

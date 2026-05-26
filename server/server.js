@@ -25,6 +25,7 @@ const promotionRoutes = require('./routes/promotions');
 const comboRoutes = require('./routes/combos');
 const customerAuthRoutes = require('./routes/customerAuth');
 const supportRoutes = require('./routes/support');
+const shiftsRoutes = require('./routes/shifts');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/computers', computerRoutes);
@@ -39,6 +40,7 @@ app.use('/api/promotions', promotionRoutes);
 app.use('/api/combos', comboRoutes);
 app.use('/api/customer-auth', customerAuthRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/shifts', shiftsRoutes);
 // Compatibility aliases for older frontend builds.
 app.use('/api', supportRoutes); // /api/conversations, /api/messages
 

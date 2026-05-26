@@ -1,0 +1,76 @@
+.seat-map-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  margin-top: 20px;
+}
+.seat-map-zone {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  position: relative;
+  overflow: hidden;
+}
+.seat-map-zone-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.seat-map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: var(--spacing-md);
+}
+.seat-map-item {
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+.seat-map-item.available {
+  background: var(--accent-green-dim);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--accent-green);
+}
+.seat-map-item.in_use {
+  background: var(--accent-red-dim);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--accent-red);
+}
+.seat-map-item.maintenance {
+  background: var(--accent-yellow-dim);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--accent-yellow);
+}
+.seat-map-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.seat-map-icon {
+  font-size: 2rem;
+  margin-bottom: 6px;
+}
+.seat-map-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+.seat-map-user {
+  font-size: 0.65rem;
+  position: absolute;
+  bottom: 6px;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.8;
+}

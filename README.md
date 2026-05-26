@@ -8,21 +8,24 @@
 
 ### 👑 Dành cho Quản Trị Viên (Admin)
 - 📊 **Tổng quan (Dashboard):** Thống kê doanh thu theo thời gian thực, xem trạng thái các máy đang hoạt động, lượng khách hàng và quản lý đơn hàng nhanh chóng với biểu đồ doanh thu sống động.
-- 💻 **Quản lý thiết bị:** Theo dõi tình trạng máy (Trống, Đang sử dụng, Bảo trì).
-- 🍔 **Quản lý Dịch vụ & Đơn hàng:** Tạo, chỉnh sửa sản phẩm (đồ ăn, nước uống). Bắt đơn hàng từ khách ngay lập tức (real-time).
-- 💬 **Hỗ trợ Khách hàng Real-time:** Tích hợp tính năng Chat trực tuyến để tiếp nhận yêu cầu và hỗ trợ khách hàng không cần rời khỏi màn hình.
-- 🎨 **Giao diện hiện đại & tối ưu UI/UX:** Cấu trúc bảng điều khiển thông minh, hỗ trợ thu phóng (collapse) Sidebar, chế độ Fullscreen cho các bảng dữ liệu, và các hiệu ứng Animations cao cấp.
+- 💻 **Quản lý thiết bị:** Theo dõi tình trạng máy (Trống, Đang sử dụng, Bảo trì) theo thời gian thực.
+- 🍔 **Quản lý Dịch vụ & Đơn hàng:** Tạo, chỉnh sửa sản phẩm (đồ ăn, nước uống). Xử lý đơn hàng từ khách với thông báo thời gian thực.
+- 💬 **Hỗ trợ Khách hàng Real-time:** Tích hợp tính năng Chat trực tuyến để tiếp nhận yêu cầu và hỗ trợ khách hàng không cần rời khỏi màn hình quản lý.
+- 🕒 **Giao Ca (Shifts):** Quản lý ca trực của nhân viên chuyên nghiệp, dễ dàng đối soát doanh thu, tiền mặt, và lịch sử bàn giao ca.
+- 🎨 **Giao diện hiện đại & Tối ưu UI/UX:** Cấu trúc bảng điều khiển thông minh, hỗ trợ thu phóng (collapse) Sidebar, chế độ thiết kế Glassmorphism sang trọng, và các hiệu ứng Animations cao cấp.
 
 ### 👤 Dành cho Khách Hàng
-- 📱 **Giao diện người dùng tối giản:** Dễ dàng tương tác, xem thời gian sử dụng, số dư tài khoản.
-- 🛒 **Gọi món tại ghế (Order In-Seat):** Menu đồ ăn/thức uống trực quan. Đặt hàng và gửi trực tiếp đến quầy thu ngân chỉ với 1 click.
+- 📱 **Giao diện trực quan:** Tối ưu hóa UI/UX trên cả Desktop và Mobile. Xem thời gian sử dụng, số dư tài khoản dễ dàng.
+- 💸 **Nạp tiền tự động (VietQR):** Nạp tiền tiện lợi và hoàn toàn tự động thông qua mã VietQR, không cần phải gọi nhân viên. Thông tin được nhúng trực tiếp ngay trên trang chủ để tối đa hóa trải nghiệm mượt mà.
+- 🎁 **Đổi điểm lấy quà:** Tích điểm thông qua việc sử dụng dịch vụ và đổi lấy các phần quà hấp dẫn ngay trên giao diện trực quan.
+- 🛒 **Gọi món tại ghế (Order In-Seat):** Đặt thức ăn/đồ uống từ xa và gửi trực tiếp đến quầy thu ngân.
 - 🛎️ **Yêu cầu hỗ trợ:** Trò chuyện trực tiếp với nhân viên (Staff/Admin) để nhận hỗ trợ kỹ thuật hoặc dịch vụ ngay tại chỗ.
 
 ## 🛠️ Công nghệ sử dụng
 Dự án được xây dựng trên cấu trúc **MERN Stack** mở rộng (Sử dụng MySQL thay vì MongoDB):
-- **Frontend:** React.js, Vite, Axios, Chart.js, CSS thuần (tích hợp các hiệu ứng Glassmorphism & Animations mượt mà).
+- **Frontend:** React.js, Vite, Axios, Chart.js, CSS thuần (Glassmorphism & CSS Animations).
 - **Backend:** Node.js, Express.js.
-- **Cơ sở dữ liệu:** MySQL (Thiết kế cơ sở dữ liệu chặt chẽ và an toàn).
+- **Cơ sở dữ liệu:** MySQL (Thiết kế cơ sở dữ liệu chặt chẽ, an toàn).
 
 ## 🚀 Hướng dẫn cài đặt (Local Deployment)
 

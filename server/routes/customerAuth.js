@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -161,6 +161,93 @@ router.get('/me', verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Lỗi lấy thông tin khách hàng:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+});
+
+router.post('/redeem', verifyToken, async (req, res) => {
+  try {
+    if (req.user?.role && req.user.role !== 'customer') {
+      return res.status(403).json({ success: false, message: 'Chỉ khách hàng mới có thể đổi điểm' });
+    }
+
+    const { points_to_spend, reward_type } = req.body;
+    
+    const [customers] = await pool.query('SELECT * FROM customers WHERE id = ?', [req.user.id]);
+    if (customers.length === 0) return res.status(404).json({ success: false, message: 'Không tìm thấy khách hàng' });
+    
+    const customer = customers[0];
+    if (customer.points < points_to_spend) {
+      return res.status(400).json({ success: false, message: 'Không đủ điểm để đổi quà' });
+    }
+
+    // Trừ điểm
+    const newPoints = customer.points - points_to_spend;
+    await pool.query('UPDATE customers SET points = ? WHERE id = ?', [newPoints, req.user.id]);
+
+    // Lưu giao dịch
+    await pool.query(
+      'INSERT INTO transactions (customer_id, amount, type, status) VALUES (?, ?, ?, ?)',
+      [req.user.id, points_to_spend, 'redeem', 'success']
+    );
+
+    return res.json({
+      success: true,
+      message: `Đổi quà (${reward_type}) thành công! Đã trừ ${points_to_spend} điểm.`,
+      new_points: newPoints
+    });
+  } catch (error) {
+    console.error('Lỗi đổi điểm:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+});
+
+router.post('/topup_qr', verifyToken, async (req, res) => {
+  try {
+    if (req.user?.role && req.user.role !== 'customer') {
+      return res.status(403).json({ success: false, message: 'Chỉ khách hàng mới dùng tính năng này' });
+    }
+
+    const { amount } = req.body;
+    if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'Số tiền không hợp lệ' });
+
+    const [customers] = await pool.query('SELECT * FROM customers WHERE id = ?', [req.user.id]);
+    if (customers.length === 0) return res.status(404).json({ success: false, message: 'Không tìm thấy khách hàng' });
+
+    const customer = customers[0];
+    const newBalance = parseFloat(customer.balance) + parseFloat(amount);
+    
+    // Tích điểm: 10,000đ = 10 điểm
+    const earnedPoints = Math.floor(amount / 1000);
+    const newPoints = customer.points + earnedPoints;
+    
+    // Cập nhật hạng thành viên
+    let newRank = customer.member_rank;
+    if (newPoints >= 10000) newRank = 'Platinum';
+    else if (newPoints >= 5000) newRank = 'Gold';
+    else if (newPoints >= 1000) newRank = 'Silver';
+
+    await pool.query(
+      'UPDATE customers SET balance = ?, points = ?, member_rank = ? WHERE id = ?',
+      [newBalance, newPoints, newRank, req.user.id]
+    );
+
+    await pool.query(
+      'INSERT INTO transactions (customer_id, amount, type, status) VALUES (?, ?, ?, ?)',
+      [req.user.id, amount, 'topup', 'success']
+    );
+
+    return res.json({
+      success: true,
+      message: `Nạp thành công ${amount}đ. Bạn nhận được ${earnedPoints} điểm!`,
+      data: {
+        balance: newBalance,
+        points: newPoints,
+        member_rank: newRank
+      }
+    });
+  } catch (error) {
+    console.error('Lỗi nạp tiền QR giả lập:', error);
     return res.status(500).json({ success: false, message: 'Lỗi server' });
   }
 });
