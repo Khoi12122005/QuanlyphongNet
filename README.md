@@ -2,6 +2,8 @@
 
 ![CyberHub Banner](https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop)
 
+**🔗 Live Demo (Client):** [https://client-eight-beta-96.vercel.app](https://client-eight-beta-96.vercel.app)
+
 **CyberHub** là một nền tảng quản lý phòng net (Cyber Game) toàn diện, mang đến trải nghiệm tuyệt vời cho cả Khách hàng và Người Quản Trị (Admin). Với giao diện hiện đại (Modern UI), tương tác mượt mà và các tính năng Real-time, CyberHub giúp việc điều hành quán Net trở nên dễ dàng và đẳng cấp hơn bao giờ hết.
 
 ## ✨ Tính năng nổi bật
