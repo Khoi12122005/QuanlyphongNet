@@ -114,4 +114,9 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// Vercel Serverless environment checks
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+module.exports = app;
